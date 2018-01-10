@@ -41,9 +41,20 @@ class IntertoysSpider(CrawlSpider):
     )    
 
     def parse_product(self, response):
+        #  name = scrapy.Field(output_processor=TakeFirst())
+        # category = scrapy.Field()
+        # description = scrapy.Field()
+        # specification = scrapy.Field()
+        # price = scrapy.Field(output_processor=TakeFirst())
+        # images = scrapy.Field()
+        # image_urls = scrapy.Field()
         l = ItemLoader(item=ToystoresItem(), response=response)
         l.add_xpath('name', "normalize-space(//h1[@class='ui header pdp']/div[1]/text())")
+        l.add_xpath('category', "normalize-space(//div[@class='ui breadcrumb mobile hidden'])")
+        l.add_xpath('description', "normalize-space(//div[@id='productDescription'])")
+        l.add_xpath('specification', "//div[@id='productSpecifications']//table//tr")
         l.add_xpath('price', "concat(normalize-space(//div[@class='ui price']/text()),normalize-space(//div[@class='ui price']/span/text()))")
+
         urls = response.xpath("//div[contains(@class,'pdp') and contains(@class,'thumb')]//img/@src").extract()
         urls = ['https://www.intertoys.nl' + url.replace('thumb', 'full') for url in urls]
         l.add_value('image_urls', urls)
